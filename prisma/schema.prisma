@@ -1,0 +1,75 @@
+// Konfigurasi koneksi ke PostgreSQL
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// -------------------------------------------------
+// TABEL DATABASE KITA
+// -------------------------------------------------
+
+// 1. Tabel User (Bisa sebagai Admin atau Pembeli)
+model User {
+  id           String        @id @default(uuid())
+  name         String
+  email        String        @unique
+  password     String
+  role         Role          @default(USER) // Enum untuk membedakan Admin/User
+  transactions Transaction[] // Relasi: 1 User bisa punya banyak transaksi
+  createdAt    DateTime      @default(now())
+}
+
+// 2. Tabel Event (Acara Stand Up Comedy)
+model Event {
+  id          String   @id @default(uuid())
+  title       String // Misal: "Raditya Dika - Cerita Cintaku"
+  performerImage   String?
+  description String   @db.Text
+  date        DateTime
+  location    String
+  price       Int // Harga tiket dasar
+  quota       Int // Total kursi yang tersedia
+  tickets     Ticket[] // Relasi: 1 Event punya banyak tiket spesifik
+  createdAt   DateTime @default(now())
+
+  transactions Transaction[]
+}
+
+// 3. Tabel Ticket (Tiket individu yang di-generate setelah dibeli)
+model Ticket {
+  id            String       @id @default(uuid()) // Ini akan jadi QR Code
+  event         Event        @relation(fields: [eventId], references: [id])
+  eventId       String
+  transaction   Transaction? @relation(fields: [transactionId], references: [id])
+  transactionId String?
+  isUsed        Boolean      @default(false) // Untuk validasi scan di hari H
+}
+
+// 4. Tabel Transaksi (Mencatat proses pembelian)
+model Transaction {
+  id          String   @id @default(uuid())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  event       Event    @relation(fields: [eventId], references: [id])
+  eventId     String // <- Ini yang tadi terlewat
+  totalAmount Int
+  status      Status   @default(PENDING)
+  tickets     Ticket[] // Tiket apa saja yang dibeli di transaksi ini
+  createdAt   DateTime @default(now())
+}
+
+// Tipe Data Khusus (Enum)
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Status {
+  PENDING
+  SUCCESS
+  FAILED
+}
