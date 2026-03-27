@@ -20,6 +20,18 @@ export const metadata = {
   title: "Standup Ticketing | Exclusive Event Platform",
   description: "Platform pembelian tiket stand-up comedy premium dengan sistem anti-overbooking.",
   keywords: "standup, comedy, tiket, event, booking",
+
+  robots: {
+    index: false,    
+    follow: false,   
+    nocache: true,   
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true, 
+    },
+  },
+
 };
 
 export const viewport = {
