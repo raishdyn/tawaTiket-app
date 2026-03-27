@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { signIn } from "next-auth/react"; // Fungsi khusus dari NextAuth untuk login
+import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
+// 1. Komponen isi form (Tanpa export default)
 function LoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -22,20 +23,18 @@ function LoginContent() {
     setLoading(true);
     setError("");
 
-    // Mengeksekusi fungsi authorize() di backend route.js kita
     const res = await signIn("credentials", {
-      redirect: false, // Kita handle redirect secara manual agar bisa menangkap pesan error
+      redirect: false,
       email: formData.email,
       password: formData.password,
     });
 
     if (res?.error) {
-      setError(res.error); // Menampilkan pesan "Password salah" atau "Email tidak terdaftar"
+      setError(res.error);
       setLoading(false);
     } else {
-      // Jika sukses, lempar ke halaman utama (atau dashboard nanti)
       router.push(callbackUrl); 
-      router.refresh(); // Memaksa Next.js memperbarui status session di browser
+      router.refresh();
     }
   };
 
@@ -81,11 +80,12 @@ function LoginContent() {
   );
 }
 
+// 2. PINTU UTAMA (Ini yang dicari Vercel dan tadi kemungkinan tidak ter-copy)
 export default function LoginPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="animate-pulse text-gray-500 font-medium">Memuat halaman login...</div>
+        <div className="text-gray-500 font-medium">Memuat halaman login...</div>
       </div>
     }>
       <LoginContent />
